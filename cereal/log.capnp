@@ -291,9 +291,9 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   startedMonoTime @13 :UInt64;
 
   lastAthenaPingTime @32 :UInt64;
-  gpuUsagePercent @33 :Int8;
-  wifiIpAddress @34 :Text;
-   
+  wifiIpAddress @33 :Text;
+  gpuUsagePercent @34 :Int8;
+
   # power
   batteryPercent @8 :Int16;
   batteryStatus @9 :Text;
