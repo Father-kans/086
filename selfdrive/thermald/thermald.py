@@ -158,6 +158,7 @@ def thermald_thread():
 
   network_type = NetworkType.none
   network_strength = NetworkStrength.unknown
+  wifiIpAddress = 'N/A'
   network_info = None
   registered_count = 0
 
@@ -250,7 +251,7 @@ def thermald_thread():
         network_type = HARDWARE.get_network_type()
         network_strength = HARDWARE.get_network_strength(network_type)
         network_info = HARDWARE.get_network_info()  # pylint: disable=assignment-from-none
-
+        wifiIpAddress = HARDWARE.get_ip_address()
         if TICI and (network_info.get('state', None) == "REGISTERED"):
           registered_count += 1
         else:
@@ -273,6 +274,7 @@ def thermald_thread():
     if network_info is not None:
       msg.deviceState.networkInfo = network_info
 
+    msg.deviceState.wifiIpAddress = wifiIpAddress
     msg.deviceState.batteryPercent = HARDWARE.get_battery_capacity()
     msg.deviceState.batteryStatus = HARDWARE.get_battery_status()
     msg.deviceState.batteryCurrent = HARDWARE.get_battery_current()
@@ -391,6 +393,9 @@ def thermald_thread():
       params.put_bool("IsOnroad", should_start)
       params.put_bool("IsOffroad", not should_start)
       HARDWARE.set_power_save(not should_start)
+      if TICI and not params.get_bool("EnableLteOnroad"):
+        fxn = "off" if should_start else "on"
+        os.system(f"nmcli radio wwan {fxn}")
 
     if should_start:
       off_ts = None
