@@ -48,7 +48,7 @@ class CarInterfaceBase():
     raise NotImplementedError
 
   @staticmethod
-  def get_params(candidate, fingerprint=gen_empty_fingerprint(), car_fw=None):
+  def get_params(candidate, fingerprint=gen_empty_fingerprint(), has_relay=False, car_fw=None):
     raise NotImplementedError
 
   @staticmethod
@@ -57,9 +57,10 @@ class CarInterfaceBase():
 
   # returns a set of default params to avoid repetition in car specific params
   @staticmethod
-  def get_std_params(candidate, fingerprint):
+  def get_std_params(candidate, fingerprint, has_relay):
     ret = car.CarParams.new_message()
     ret.carFingerprint = candidate
+    ret.isPandaBlack = has_relay
 
     # standard ALC params
     ret.steerControlType = car.CarParams.SteerControlType.torque
@@ -126,10 +127,7 @@ class CarInterfaceBase():
     if cs_out.steerError:
       events.add(EventName.steerUnavailable)
     elif cs_out.steerWarning:
-      if cs_out.steeringPressed:
-        events.add(EventName.steerTempUnavailableUserOverride)
-      else:
-        events.add(EventName.steerTempUnavailable)
+      events.add(EventName.steerTempUnavailable)
 
     # Disable on rising edge of gas or brake. Also disable on brake when speed > 0.
     # Optionally allow to press gas at zero speed to resume.

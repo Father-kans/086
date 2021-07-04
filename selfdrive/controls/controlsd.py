@@ -79,10 +79,12 @@ class Controls:
       self.log_sock = messaging.sub_sock('androidLog')
 
     # wait for one pandaState and one CAN packet
+    hw_type = messaging.recv_one(self.sm.sock['pandaState']).pandaState.pandaType
+    has_relay = hw_type in [PandaType.blackPanda, PandaType.uno, PandaType.dos]
     print("Waiting for CAN messages...")
     get_one_can(self.can_sock)
 
-    self.CI, self.CP = get_car(self.can_sock, self.pm.sock['sendcan'])
+    self.CI, self.CP = get_car(self.can_sock, self.pm.sock['sendcan'], has_relay)
 
     # read params
     self.is_metric = params.get_bool("IsMetric")
@@ -242,11 +244,11 @@ class Controls:
       self.events.add(EventName.radarFault)
     elif not self.sm.valid["pandaState"]:
       self.events.add(EventName.usbError)
-    elif not self.sm.all_alive_and_valid():
-      self.events.add(EventName.commIssue)
-      if not self.logged_comm_issue:
-        cloudlog.error(f"commIssue - valid: {self.sm.valid} - alive: {self.sm.alive}")
-        self.logged_comm_issue = True
+    #elif not self.sm.all_alive_and_valid():
+      #self.events.add(EventName.commIssue)
+      #if not self.logged_comm_issue:
+        #cloudlog.error(f"commIssue - valid: {self.sm.valid} - alive: {self.sm.alive}")
+        #self.logged_comm_issue = True
     else:
       self.logged_comm_issue = False
 
@@ -286,10 +288,11 @@ class Controls:
 
     # TODO: fix simulator
     if not SIMULATION:
-      if not NOSENSOR:
-        if not self.sm['liveLocationKalman'].gpsOK and (self.distance_traveled > 1000):
-          # Not show in first 1 km to allow for driving out of garage. This event shows after 5 minutes
-          self.events.add(EventName.noGps)
+      #if not NOSENSOR:
+      #  if not self.sm['liveLocationKalman'].gpsOK and (self.distance_traveled > 1000) and \
+      #    (not TICI or self.enable_lte_onroad):
+      #    # Not show in first 1 km to allow for driving out of garage. This event shows after 5 minutes
+      #    self.events.add(EventName.noGps)
       if not self.sm.all_alive(self.camera_packets):
         self.events.add(EventName.cameraMalfunction)
       if self.sm['modelV2'].frameDropPerc > 20:
