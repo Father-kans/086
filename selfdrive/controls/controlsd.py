@@ -28,7 +28,7 @@ from selfdrive.controls.lib.vehicle_model import VehicleModel
 from selfdrive.controls.lib.longitudinal_planner import LON_MPC_STEP
 from selfdrive.locationd.calibrationd import Calibration
 from selfdrive.hardware import HARDWARE, TICI
-from selfdrive.ntune import ntune_get
+from selfdrive.ntune import ntune_get, ntune_isEnabled
 
 LDW_MIN_SPEED = 31 * CV.MPH_TO_MS
 LANE_DEPARTURE_THRESHOLD = 0.1
@@ -462,10 +462,17 @@ class Controls:
   def state_control(self, CS):
     """Given the state, this function returns an actuators packet"""
 
+# Neokii's live tune
     # Update VehicleModel
     params = self.sm['liveParameters']
     x = max(params.stiffnessFactor, 0.1)
-    sr = max(params.steerRatio, 0.1)
+    #sr = max(params.steerRatio, 0.1)
+
+    if ntune_isEnabled('useLiveSteerRatio'):
+      sr = max(params.steerRatio, 0.1)
+    else:
+      sr = max(ntune_get('steerRatio'), 0.1)
+
     self.VM.update_params(x, sr)
 
     lat_plan = self.sm['lateralPlan']
@@ -639,6 +646,10 @@ class Controls:
     controlsState.startMonoTime = int(start_time * 1e9)
     controlsState.forceDecel = bool(force_decel)
     controlsState.canErrorCounter = self.can_error_counter
+# display SR/SRC/SAD on Ui
+    controlsState.steerRatio = self.VM.sR
+    controlsState.steerRateCost = ntune_get('steerRateCost')
+    controlsState.steerActuatorDelay = ntune_get('steerActuatorDelay')
 
     if self.joystick_mode:
       controlsState.lateralControlState.debugState = lac_log
