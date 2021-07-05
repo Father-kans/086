@@ -22,6 +22,7 @@
 #include "selfdrive/common/params.h"
 #include "selfdrive/common/util.h"
 #include "selfdrive/common/visionimg.h"
+#include "selfdrive/common/touch.h"
 
 #define COLOR_BLACK nvgRGBA(0, 0, 0, 255)
 #define COLOR_BLACK_ALPHA(x) nvgRGBA(0, 0, 0, x)
@@ -50,7 +51,7 @@ typedef struct Rect {
   }
 } Rect;
 
-const int bdr_s = 30;
+const int bdr_s = 20;
 const int header_h = 420;
 const int footer_h = 280;
 
@@ -84,6 +85,10 @@ typedef struct UIScene {
   mat3 view_from_calib;
   bool world_objects_visible;
 
+  float angleSteers;
+  int engineRPM;
+  bool recording;
+  bool brakeLights;
   cereal::PandaState::PandaType pandaType;
 
   // gps
@@ -105,6 +110,14 @@ typedef struct UIScene {
   float light_sensor, accel_sensor, gyro_sensor;
   bool started, ignition, is_metric, longitudinal_control, end_to_end;
   uint64_t started_frame;
+  // neokii dev UI
+  cereal::CarControl::Reader car_control;
+  cereal::ControlsState::Reader controls_state;
+  cereal::CarState::Reader car_state;
+  cereal::CarParams::Reader car_params;
+  cereal::GpsLocationData::Reader gps_ext;
+  cereal::LiveParametersData::Reader live_params;
+  
 } UIScene;
 
 typedef struct UIState {
@@ -140,6 +153,12 @@ typedef struct UIState {
   float car_space_transform[6];
   bool wide_camera;
   float zoom;
+
+  //
+  bool custom_lead_mark;
+  TouchState touch;
+  int lock_on_anim_index;
+
 } UIState;
 
 

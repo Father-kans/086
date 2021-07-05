@@ -183,26 +183,24 @@ static void ui_draw_world(UIState *s) {
 
 static void bb_ui_draw_basic_info(UIState *s)
 {
-    const UIScene *scene = &s->scene;
-    char str[1024];
+  const UIScene *scene = &s->scene;
+  char str[1024];
 
-    auto controls_state = (*s->sm)["controlsState"].getControlsState();
-    auto car_params = (*s->sm)["carParams"].getCarParams();
-    auto live_params = (*s->sm)["liveParameters"].getLiveParameters();
+  auto controls_state = (*s->sm)["controlsState"].getControlsState();
+  auto car_params = (*s->sm)["carParams"].getCarParams();
+  auto live_params = (*s->sm)["liveParameters"].getLiveParameters();
 
-    snprintf(str, sizeof(str), "SR(%.2f) SRC(%.2f) SAD(%.2f) AO(%.2f/%.2f)", controls_state.getSteerRatio(),
-                                                        controls_state.getSteerRateCost(),
-                                                        controls_state.getSteerActuatorDelay(),
-                                                        live_params.getAngleOffsetDeg(),
-                                                        live_params.getAngleOffsetAverageDeg());
+  snprintf(str, sizeof(str), "SR(%.2f) SRC(%.2f) SAD(%.2f) AO(%.2f/%.2f)", controls_state.getSteerRatio(),
+                                                      controls_state.getSteerRateCost(),
+                                                      controls_state.getSteerActuatorDelay(),
+                                                      live_params.getAngleOffsetDeg(),
+                                                      live_params.getAngleOffsetAverageDeg());
 
-    int x = s->viz_rect.x + (bdr_s * 2);
-    int y = s->viz_rect.bottom() - 24;
-    const NVGcolor textColor2 = COLOR_GREEN_ALPHA(250);
-
-    nvgTextAlign(s->vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-
-    ui_draw_text(s, x, y, str, 25 * 2.5, textColor2, "sans-semibold");
+  int x = s->viz_rect.x + (bdr_s * 2);
+  int y = s->viz_rect.bottom() - 24;
+  const NVGcolor textColor2 = COLOR_BLUE_ALPHA(254);
+  nvgTextAlign(s->vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
+  ui_draw_text(s, x, y, str, 25 * 2.5, textColor2, "sans-regular");
 }
 
 static void ui_draw_vision_maxspeed(UIState *s) {
@@ -263,6 +261,7 @@ static void ui_draw_vision_header(UIState *s) {
   ui_draw_vision_maxspeed(s);
   ui_draw_vision_speed(s);
   ui_draw_vision_event(s);
+  bb_ui_draw_basic_info(s);
 }
 
 static void ui_draw_vision_frame(UIState *s) {
