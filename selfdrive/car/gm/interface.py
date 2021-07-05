@@ -156,7 +156,7 @@ class CarInterface(CarInterfaceBase):
     ret.longitudinalTuning.kfBP = [13.8, 33.]
     ret.longitudinalTuning.kfV = [1.3, 0.9]
     ret.brakeMaxBP = [0, 19.7, 33.]
-    ret.brakeMaxV = [1.8 1.5, 0.6]
+    ret.brakeMaxV = [1.8, 1.5, 0.6]
 
     ret.stoppingBrakeRate = 0.2 # reach stopping target smoothly
     ret.startingBrakeRate = 2.0 # release brakes fast
