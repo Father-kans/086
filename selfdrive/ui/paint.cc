@@ -179,6 +179,8 @@ static void ui_draw_world(UIState *s) {
     }
   }
   nvgResetScissor(s->vg);
+}
+
 static void bb_ui_draw_basic_info(UIState *s)
 {
     const UIScene *scene = &s->scene;
@@ -201,7 +203,6 @@ static void bb_ui_draw_basic_info(UIState *s)
     nvgTextAlign(s->vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
 
     ui_draw_text(s, x, y, str, 25 * 2.5, textColor2, "sans-semibold");
-}
 }
 
 static void ui_draw_vision_maxspeed(UIState *s) {
