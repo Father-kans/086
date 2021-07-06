@@ -198,7 +198,12 @@ static void bb_ui_draw_basic_info(UIState *s)
 
   int x = s->viz_rect.x + (bdr_s * 2);
   int y = s->viz_rect.bottom() - 24;
-  const NVGcolor textColor2 = COLOR_BLUE_ALPHA(254);
+  nvgBeginPath(s->vg);
+  nvgRect(s->vg, x-40, y-20, 940, 40);
+  NVGcolor squareColor = nvgRGBA(44, 139, 37, 200);
+  nvgFillColor(s->vg, squareColor);
+  nvgFill(s->vg);
+  const NVGcolor textColor2 = COLOR_WHITE_ALPHA(254);
   nvgTextAlign(s->vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
   ui_draw_text(s, x, y, str, 25 * 2.5, textColor2, "sans-regular");
 }
@@ -208,7 +213,7 @@ static void bb_ui_draw_debug(UIState *s)
     const UIScene *scene = &s->scene;
     char str[1024];
 
-    int y = 40;
+    int y = 10;
     const int height = 60;
 
     nvgTextAlign(s->vg, NVG_ALIGN_LEFT | NVG_ALIGN_BASELINE);
@@ -217,6 +222,7 @@ static void bb_ui_draw_debug(UIState *s)
 
     auto controls_state = (*s->sm)["controlsState"].getControlsState();
     auto car_control = (*s->sm)["carControl"].getCarControl();
+    auto device_state = (*s->sm)["deviceState"].getDeviceState();
 
     int longControlState = (int)controls_state.getLongControlState();
     float vPid = controls_state.getVPid();
@@ -248,16 +254,62 @@ static void bb_ui_draw_debug(UIState *s)
     ui_draw_text(s, text_x, y, str, 25 * 2.5, textColor, "sans-regular");
 
     y += height;
+    y += height;
     snprintf(str, sizeof(str), "vPid: %.3f(%.1f)", vPid, vPid * 3.6f);
-    ui_draw_text(s, text_x, y, str, 25 * 2.5, textColor2, "sans-regular");
+    ui_draw_text(s, text_x-210, y, str, 25 * 2.5, textColor2, "sans-regular");
 
     y += height;
     snprintf(str, sizeof(str), "Gas: %.3f", gas);
-    ui_draw_text(s, text_x, y, str, 25 * 2.5, textColor, "sans-regular");
+    ui_draw_text(s, text_x-210, y, str, 25 * 2.5, textColor, "sans-regular");
 
     y += height;
     snprintf(str, sizeof(str), "Brake: %.3f", brake);
-    ui_draw_text(s, text_x, y, str, 25 * 2.5, textColor, "sans-regular");
+    ui_draw_text(s, text_x-210, y, str, 25 * 2.5, textColor, "sans-regular");
+
+    //Cpu Temp
+
+    NVGcolor val_color = nvgRGBA(255, 255, 255, 200);
+    float cpuTemp = 0;
+    auto cpuList = device_state.getCpuTempC();
+
+    if(cpuList.size() > 0)
+    {
+        for(int i = 0; i < cpuList.size(); i++)
+            cpuTemp += cpuList[i];
+
+        cpuTemp /= cpuList.size();
+    }
+
+      if(cpuTemp > 80.f) {
+        val_color = nvgRGBA(255, 188, 3, 200);
+      }
+      if(cpuTemp > 92.f) {
+        val_color = nvgRGBA(255, 0, 0, 200);
+      }
+      // temp is alway in C * 10
+    snprintf(str, sizeof(str), "Cpu온도: %.1f°", cpuTemp);
+    ui_draw_text(s, text_x-210, y, str, 25 * 2.5, textColor, "sans-regular");
+
+    //add visual radar relative distance
+    y += height;
+    auto radar_state = (*s->sm)["radarState"].getRadarState();
+    auto lead_one = radar_state.getLeadOne();
+
+    if (lead_one.getStatus()) {
+      //show RED if less than 5 meters
+      //show orange if less than 15 meters
+      if((int)(lead_one.getDRel()) < 15) {
+        val_color = nvgRGBA(255, 188, 3, 200);
+      }
+      if((int)(lead_one.getDRel()) < 5) {
+        val_color = nvgRGBA(255, 0, 0, 200);
+      }
+      // lead car relative distance is always in meters
+      snprintf(str, sizeof(str), "앞차: %.1f미터", lead_one.getDRel());
+    } else {
+       snprintf(str, sizeof(str), "-");
+    }
+    ui_draw_text(s, text_x-210, y, str, 25 * 2.5, textColor, "sans-regular");
 }
 
 static void ui_draw_vision_brake(UIState *s) {
