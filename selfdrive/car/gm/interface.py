@@ -156,7 +156,7 @@ class CarInterface(CarInterfaceBase):
     ret.longitudinalTuning.kiBP = [0., 5., 12., 20., 27.]
     ret.longitudinalTuning.kiV = [.37, .36, .38, .33, .3]
     ret.longitudinalTuning.kfBP = [13.8, 33.]
-    ret.longitudinalTuning.kfV = [1.3, 0.9]
+    ret.longitudinalTuning.kfV = [1.4, 0.9]
     ret.brakeMaxBP = [0, 19.7, 33.]
     ret.brakeMaxV = [1.8, 1.5, 0.6]
 
@@ -171,7 +171,9 @@ class CarInterface(CarInterfaceBase):
   # returns a car.CarState
   def update(self, c, can_strings):
     self.cp.update_strings(can_strings)
-    ret = self.CS.update(self.cp)
+    # bellow two lines for Brake Light
+    self.cp_chassis.update_strings(can_strings)
+    ret = self.CS.update(self.cp, self.cp_chassis)
 
     cruiseEnabled = self.CS.pcm_acc_status != AccState.OFF
     ret.cruiseState.enabled = cruiseEnabled

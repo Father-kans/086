@@ -28,7 +28,7 @@ class CarState(CarStateBase):
     self.autoHoldActivated = False
     self.regenPaddlePressed = 0
     self.cruiseMain = False
-  def update(self, pt_cp):
+  def update(self, pt_cp, ch_cp): # line for brake light
     ret = car.CarState.new_message()
 
     self.prev_cruise_buttons = self.cruise_buttons
@@ -101,6 +101,8 @@ class CarState(CarStateBase):
 
     self.engineRPM = pt_cp.vl["ECMEngineStatus"]["EngineRPM"]
 
+# bellow line for Brake Light	
+    ret.brakeLights = ch_cp.vl["EBCMFrictionBrakeStatus"]["FrictionBrakePressure"] != 0 or ret.brakePressed
 
 ## bellow 5 Lines are for Autohold
     if kegman_kans.conf['AutoHold'] == "1":
@@ -160,7 +162,7 @@ class CarState(CarStateBase):
 
     return CANParser(DBC[CP.carFingerprint]["pt"], signals, checks, CanBus.POWERTRAIN, enforce_checks=False)
 
-# all bellows are for Brake Light
+## all bellows are for Brake Light
   @staticmethod
   def get_chassis_can_parser(CP):
     # this function generates lists for signal, messages and initial values
