@@ -197,15 +197,15 @@ static void bb_ui_draw_basic_info(UIState *s)
                                                       live_params.getAngleOffsetAverageDeg());
 
   int x = s->viz_rect.x + (bdr_s * 2);
-  int y = s->viz_rect.bottom() - 24;
+  int y = s->viz_rect.bottom() - 10;
   nvgBeginPath(s->vg);
-  nvgRect(s->vg, x-40, y-20, 940, 40);
-  NVGcolor squareColor = nvgRGBA(44, 139, 37, 200);
+  nvgRect(s->vg, x-40, y-27, 950, 50);
+  NVGcolor squareColor = nvgRGBA(34, 139, 34, 200);
   nvgFillColor(s->vg, squareColor);
   nvgFill(s->vg);
   const NVGcolor textColor2 = COLOR_WHITE_ALPHA(254);
   nvgTextAlign(s->vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-  ui_draw_text(s, x, y, str, 25 * 2.5, textColor2, "sans-regular");
+  ui_draw_text(s, x, y, str, 20 * 2.3, textColor2, "sans-regular");
 }
 
 static void bb_ui_draw_debug(UIState *s)
@@ -213,8 +213,8 @@ static void bb_ui_draw_debug(UIState *s)
     const UIScene *scene = &s->scene;
     char str[1024];
 
-    int y = 10;
-    const int height = 60;
+    int y = 20;
+    const int height = 55;
 
     nvgTextAlign(s->vg, NVG_ALIGN_LEFT | NVG_ALIGN_BASELINE);
 
@@ -239,33 +239,32 @@ static void bb_ui_draw_debug(UIState *s)
 
     y += height;
     snprintf(str, sizeof(str), "State: %s", long_state[longControlState]);
-    ui_draw_text(s, text_x, y, str, 25 * 2.5, textColor2, "sans-regular");
+    ui_draw_text(s, text_x, y, str, 20 * 2.3, textColor2, "sans-regular");
 
     y += height;
     snprintf(str, sizeof(str), "P: %.3f", upAccelCmd);
-    ui_draw_text(s, text_x, y, str, 25 * 2.5, textColor, "sans-regular");
+    ui_draw_text(s, text_x, y, str, 20 * 2.3, textColor, "sans-regular");
 
     y += height;
     snprintf(str, sizeof(str), "I: %.3f", uiAccelCmd);
-    ui_draw_text(s, text_x, y, str, 25 * 2.5, textColor, "sans-regular");
+    ui_draw_text(s, text_x, y, str, 20 * 2.3, textColor, "sans-regular");
 
     y += height;
     snprintf(str, sizeof(str), "F: %.3f", ufAccelCmd);
-    ui_draw_text(s, text_x, y, str, 25 * 2.5, textColor, "sans-regular");
-
-    y += height;
+    ui_draw_text(s, text_x, y, str, 20 * 2.3, textColor, "sans-regular");
+;
     y += height;
     snprintf(str, sizeof(str), "vPid: %.3f(%.1f)", vPid, vPid * 3.6f);
-    ui_draw_text(s, text_x-210, y, str, 25 * 2.5, textColor2, "sans-regular");
+    ui_draw_text(s, text_x-210, y, str, 20 * 2.3, textColor2, "sans-regular");
 
     y += height;
     snprintf(str, sizeof(str), "Gas: %.3f", gas);
-    ui_draw_text(s, text_x-210, y, str, 25 * 2.5, textColor, "sans-regular");
+    ui_draw_text(s, text_x-210, y, str, 20 * 2.3, textColor, "sans-regular");
 
     y += height;
     snprintf(str, sizeof(str), "Brake: %.3f", brake);
-    ui_draw_text(s, text_x-210, y, str, 25 * 2.5, textColor, "sans-regular");
-
+    ui_draw_text(s, text_x-210, y, str, 20 * 2.3, textColor, "sans-regular");
+    y += height;
     //Cpu Temp
 
     NVGcolor val_color = nvgRGBA(255, 255, 255, 200);
@@ -286,12 +285,12 @@ static void bb_ui_draw_debug(UIState *s)
       if(cpuTemp > 92.f) {
         val_color = nvgRGBA(255, 0, 0, 200);
       }
-      // temp is alway in C * 10
-    snprintf(str, sizeof(str), "Cpu온도: %.1f°", cpuTemp);
-    ui_draw_text(s, text_x-210, y, str, 25 * 2.5, textColor, "sans-regular");
+    // temp is alway in C * 10
+    snprintf(str, sizeof(str), "CpuTemp: %.1f°", cpuTemp);
+    ui_draw_text(s, text_x-210, y, str, 20 * 2.3, textColor, "sans-regular");
+    y += height;
 
     //add visual radar relative distance
-    y += height;
     auto radar_state = (*s->sm)["radarState"].getRadarState();
     auto lead_one = radar_state.getLeadOne();
 
@@ -305,11 +304,43 @@ static void bb_ui_draw_debug(UIState *s)
         val_color = nvgRGBA(255, 0, 0, 200);
       }
       // lead car relative distance is always in meters
-      snprintf(str, sizeof(str), "앞차: %.1f미터", lead_one.getDRel());
+      snprintf(str, sizeof(str), "Dist: %.1fm", lead_one.getDRel());
     } else {
        snprintf(str, sizeof(str), "-");
     }
-    ui_draw_text(s, text_x-210, y, str, 25 * 2.5, textColor, "sans-regular");
+    ui_draw_text(s, text_x-210, y, str, 20 * 2.3, textColor, "sans-regular");
+    y += height;
+
+  // add GPS accuracy
+    auto gps_ext = s->scene.gps_ext;
+    float verticalAccuracy = gps_ext.getVerticalAccuracy();
+    float gpsAltitude = gps_ext.getAltitude();
+    float gpsAccuracy = gps_ext.getAccuracy();
+
+    if(verticalAccuracy == 0 || verticalAccuracy > 100)
+        gpsAltitude = 99.99;
+
+    if (gpsAccuracy > 100)
+      gpsAccuracy = 99.99;
+    else if (gpsAccuracy == 0)
+      gpsAccuracy = 99.8;
+
+    if(gpsAccuracy > 1.0) {
+         val_color = nvgRGBA(255, 188, 3, 200);
+      }
+      if(gpsAccuracy > 2.0) {
+         val_color = nvgRGBA(255, 80, 80, 200);
+      }
+    snprintf(str, sizeof(str), "Gps: %.1fm", gpsAccuracy);
+    ui_draw_text(s, text_x-210, y, str, 20 * 2.3, textColor, "sans-regular");
+    y += height;
+
+  //engineRPM
+    if(s->scene.engineRPM == 0) {
+      snprintf(str, sizeof(str), "OFF");
+    }
+    else {snprintf(str, sizeof(str), "RPM: %d", (s->scene.engineRPM));}
+    ui_draw_text(s, text_x-210, y, str, 20 * 2.3, textColor, "sans-regular");
 }
 
 static void ui_draw_vision_brake(UIState *s) {
@@ -339,12 +370,12 @@ static void ui_draw_vision_maxspeed(UIState *s) {
   ui_draw_rect(s->vg, rect, COLOR_WHITE_ALPHA(100), 10, 20.);
 
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
-  ui_draw_text(s, rect.centerX(), 118, "MAX", 26 * 2.5, COLOR_WHITE_ALPHA(is_cruise_set ? 200 : 100), "sans-regular");
+  ui_draw_text(s, rect.centerX(), 118, "MAX", 20 * 2.5, COLOR_WHITE_ALPHA(is_cruise_set ? 200 : 100), "sans-regular");
   if (is_cruise_set) {
     const std::string maxspeed_str = std::to_string((int)std::nearbyint(maxspeed));
     ui_draw_text(s, rect.centerX(), 212, maxspeed_str.c_str(), 48 * 2.5, COLOR_WHITE, "sans-bold");
   } else {
-    ui_draw_text(s, rect.centerX(), 212, "N/A", 42 * 2.5, COLOR_WHITE_ALPHA(100), "sans-semibold");
+    ui_draw_text(s, rect.centerX(), 212, "N/A", 34 * 2.5, COLOR_WHITE_ALPHA(100), "sans-semibold");
   }
 }
 
@@ -353,8 +384,8 @@ static void ui_draw_vision_speed(UIState *s) {
   const std::string speed_str = std::to_string((int)std::nearbyint(speed));
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
   NVGcolor color = s->scene.car_state.getBrakeLights() ? nvgRGBA(255, 66, 66, 255) : COLOR_WHITE;
-  ui_draw_text(s, s->viz_rect.centerX(), 190, speed_str.c_str(), 96 * 2.5, color, "sans-bold");
-  ui_draw_text(s, s->viz_rect.centerX(), 270, s->scene.is_metric ? "km/h" : "mph", 36 * 2.5, COLOR_WHITE_ALPHA(200), "sans-regular");
+  ui_draw_text(s, s->viz_rect.centerX(), 190, speed_str.c_str(), 84 * 2.5, color, "sans-bold");
+  ui_draw_text(s, s->viz_rect.centerX(), 270, s->scene.is_metric ? "km/h" : "mph", 28 * 2.5, COLOR_WHITE_ALPHA(200), "sans-regular");
 }
 
 static void ui_draw_vision_event(UIState *s) {
