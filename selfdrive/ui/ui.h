@@ -33,6 +33,7 @@
 #define COLOR_RED nvgRGBA(201, 34, 49, 255)
 #define COLOR_OCHRE nvgRGBA(218, 111, 37, 255)
 #define COLOR_GREEN_ALPHA(x) nvgRGBA(0, 255, 0, x)
+#define COLOR_DARKGREEN nvgRGBA(44, 139, 37, 255)
 #define COLOR_BLUE_ALPHA(x) nvgRGBA(0, 0, 255, x)
 
 // TODO: this is also hardcoded in common/transformations/camera.py

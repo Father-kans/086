@@ -22,6 +22,7 @@
 #include "selfdrive/hardware/hw.h"
 
 #include "selfdrive/ui/ui.h"
+#include "selfdrive/ui/extras.h"
 
 static void ui_draw_text(const UIState *s, float x, float y, const char *string, float size, NVGcolor color, const char *font_name) {
   nvgFontFace(s->vg, font_name);
@@ -370,12 +371,12 @@ static void ui_draw_vision_maxspeed(UIState *s) {
   ui_draw_rect(s->vg, rect, COLOR_WHITE_ALPHA(100), 10, 20.);
 
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
-  ui_draw_text(s, rect.centerX(), 118, "MAX", 20 * 2.5, COLOR_WHITE_ALPHA(is_cruise_set ? 200 : 100), "sans-regular");
+  ui_draw_text(s, rect.centerX(), 118, "MAX", 19 * 2.5, COLOR_WHITE_ALPHA(is_cruise_set ? 200 : 100), "sans-regular");
   if (is_cruise_set) {
     const std::string maxspeed_str = std::to_string((int)std::nearbyint(maxspeed));
     ui_draw_text(s, rect.centerX(), 212, maxspeed_str.c_str(), 48 * 2.5, COLOR_WHITE, "sans-bold");
   } else {
-    ui_draw_text(s, rect.centerX(), 212, "N/A", 34 * 2.5, COLOR_WHITE_ALPHA(100), "sans-semibold");
+    ui_draw_text(s, rect.centerX(), 212, "N/A", 32 * 2.5, COLOR_WHITE_ALPHA(100), "sans-semibold");
   }
 }
 
@@ -384,8 +385,8 @@ static void ui_draw_vision_speed(UIState *s) {
   const std::string speed_str = std::to_string((int)std::nearbyint(speed));
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
   NVGcolor color = s->scene.car_state.getBrakeLights() ? nvgRGBA(255, 66, 66, 255) : COLOR_WHITE;
-  ui_draw_text(s, s->viz_rect.centerX(), 190, speed_str.c_str(), 84 * 2.5, color, "sans-bold");
-  ui_draw_text(s, s->viz_rect.centerX(), 270, s->scene.is_metric ? "km/h" : "mph", 28 * 2.5, COLOR_WHITE_ALPHA(200), "sans-regular");
+  ui_draw_text(s, s->viz_rect.centerX(), 190, speed_str.c_str(), 80 * 2.5, color, "sans-bold");
+  ui_draw_text(s, s->viz_rect.centerX(), 270, s->scene.is_metric ? "km/h" : "mph", 24 * 2.5, COLOR_WHITE_ALPHA(200), "sans-regular");
 }
 
 static void ui_draw_vision_event(UIState *s) {
@@ -420,6 +421,7 @@ static void ui_draw_vision_header(UIState *s) {
   ui_draw_vision_event(s);
   bb_ui_draw_basic_info(s);
   bb_ui_draw_debug(s);
+  ui_draw_extras(s);
 }
 
 static void ui_draw_vision_frame(UIState *s) {
