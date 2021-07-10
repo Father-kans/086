@@ -28,6 +28,10 @@ class CarState(CarStateBase):
     self.autoHoldActivated = False
     self.regenPaddlePressed = 0
     self.cruiseMain = False
+#Engine Rpm	
+    self.engineRPM = 0
+
+
   def update(self, pt_cp, ch_cp): # line for brake light
     ret = car.CarState.new_message()
 
@@ -88,8 +92,8 @@ class CarState(CarStateBase):
     # Regen braking is braking
     if self.car_fingerprint == CAR.VOLT:
     # bellow 3 lines for AutoHold	
-      # ret.brakePressed = ret.brakePressed or bool(pt_cp.vl["EBCMRegenPaddle"]['RegenPaddle'])
-      self.regenPaddlePressed = bool(pt_cp.vl["EBCMRegenPaddle"]['RegenPaddle'])
+      # ret.brakePressed = ret.brakePressed or bool(pt_cp.vl["EBCMRegenPaddle"]["RegenPaddle"])
+      self.regenPaddlePressed = bool(pt_cp.vl["EBCMRegenPaddle"]["RegenPaddle"])
       ret.brakePressed = ret.brakePressed or self.regenPaddlePressed
 
     ret.cruiseState.enabled = self.pcm_acc_status != AccState.OFF
