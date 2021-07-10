@@ -152,18 +152,18 @@ class CarInterface(CarInterfaceBase):
     ret.longitudinalTuning.deadzoneV = [.0, .14]
 
     ret.longitudinalTuning.kpBP = [0., 15., 22., 33.]
-    ret.longitudinalTuning.kpV = [1.2, 2.0, 2.2, 1.8]
-    ret.longitudinalTuning.kiBP = [0., 5., 12., 20., 27.]
-    ret.longitudinalTuning.kiV = [.37, .36, .38, .33, .3]
-    ret.longitudinalTuning.kfBP = [13.8, 33.]
-    ret.longitudinalTuning.kfV = [1.4, 0.9]
-    ret.brakeMaxBP = [0, 19.7, 33.]
-    ret.brakeMaxV = [1.8, 1.5, 0.6]
+    ret.longitudinalTuning.kpV = [1.9, 2.5, 2.1, 1.8]
+    ret.longitudinalTuning.kiBP = [0., 13.8, 33.]
+    ret.longitudinalTuning.kiV = [.39, .36, .3]
+    ret.longitudinalTuning.kfBP = [0., 13.8, 33.]
+    ret.longitudinalTuning.kfV = [1.2, 1.6, 1.0]
+    ret.brakeMaxBP = [0, 13.8, 33.]
+    ret.brakeMaxV = [1.8, 1.5, 0.7]
 
     ret.stoppingBrakeRate = 0.2 # reach stopping target smoothly
     ret.startingBrakeRate = 2.0 # release brakes fast
     ret.startAccel = 1.2 # Accelerate from 0 faster
-    ret.steerLimitTimer = 0.7
+    ret.steerLimitTimer = 1.7
     ret.radarTimeStep = 0.0667  # GM radar runs at 15Hz instead of standard 20Hz
 
     return ret
@@ -182,6 +182,8 @@ class CarInterface(CarInterfaceBase):
 
     ret.canValid = self.cp.can_valid
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
+
+    ret.engineRPM = self.CS.engineRPM #for RPM
 
     buttonEvents = []
 
