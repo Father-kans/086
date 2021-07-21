@@ -90,6 +90,8 @@ void safety_setter_thread() {
   cereal::CarParams::Reader car_params = cmsg.getRoot<cereal::CarParams>();
   cereal::CarParams::SafetyModel safety_model = car_params.getSafetyModel();
 
+  panda->set_unsafe_mode(0);  // see safety_declarations.h for allowed values
+
   auto safety_param = car_params.getSafetyParam();
   LOGW("setting safety model: %d with param %d", (int)safety_model, safety_param);
 
@@ -409,7 +411,7 @@ void hardware_control_thread() {
   bool prev_charging_disabled = false;
   unsigned int cnt = 0;
 
-  FirstOrderFilter integ_lines_filter(0, 10.0, 0.05);
+  FirstOrderFilter integ_lines_filter(0, 30.0, 0.05);
 
   while (!do_exit && panda->connected) {
     cnt++;

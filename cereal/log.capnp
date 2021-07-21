@@ -526,6 +526,12 @@ struct ControlsState @0x97ff69c53601abf1 {
   longitudinalPlanMonoTime @28 :UInt64;
   lateralPlanMonoTime @50 :UInt64;
 
+  # Wheel rotation
+  vEgo @0 :Float32;
+  angleSteers @13 :Float32;
+  vEgoRaw @32 :Float32;
+  steerOverride @20 :Bool;
+
   state @31 :OpenpilotState;
   enabled @19 :Bool;
   active @36 :Bool;
@@ -554,6 +560,16 @@ struct ControlsState @0x97ff69c53601abf1 {
   cumLagMs @15 :Float32;
   canErrorCounter @57 :UInt32;
 
+  decelForModel @63 :Bool;
+  # Road Speed Limiter
+  roadLimitSpeed @64 :Int32;
+  roadLimitSpeedLeftDist @65 :Int32;
+  
+  # Ui display
+  steerRatio @60 :Float32;
+  steerRateCost @61 :Float32;
+  steerActuatorDelay @62 :Float32;
+
   lateralControlState :union {
     indiState @52 :LateralINDIState;
     pidState @53 :LateralPIDState;
@@ -561,19 +577,6 @@ struct ControlsState @0x97ff69c53601abf1 {
     angleState @58 :LateralAngleState;
     debugState @59 :LateralDebugState;
   }
-
-  angleSteers @60 :Float32;
-  cluSpeedMs @61 :Float32;
-  applyAccel @62 :Float32;
-  fusedAccel @63 :Float32;
-  leadDist @64 :Float32;
-  aReqValue @65 :Float32;
-  aReqValueMin @66 :Float32;
-  aReqValueMax @67 :Float32;
-
-  steerRatio @68 :Float32;
-  steerRateCost @69 :Float32;
-  steerActuatorDelay @70 :Float32;
 
   enum OpenpilotState @0xdbe58b96d2d1ac61 {
     disabled @0;
@@ -652,8 +655,6 @@ struct ControlsState @0x97ff69c53601abf1 {
   }
 
   # deprecated
-  vEgoDEPRECATED @0 :Float32;
-  vEgoRawDEPRECATED @32 :Float32;
   aEgoDEPRECATED @1 :Float32;
   canMonoTimeDEPRECATED @16 :UInt64;
   radarStateMonoTimeDEPRECATED @17 :UInt64;
@@ -674,11 +675,9 @@ struct ControlsState @0x97ff69c53601abf1 {
   decelForTurnDEPRECATED @47 :Bool;
   decelForModelDEPRECATED @54 :Bool;
   awarenessStatusDEPRECATED @26 :Float32;
-  angleSteersDEPRECATED @13 :Float32;
   vCurvatureDEPRECATED @46 :Float32;
   mapValidDEPRECATED @49 :Bool;
   jerkFactorDEPRECATED @12 :Float32;
-  steerOverrideDEPRECATED @20 :Bool;
   steeringAngleDesiredDegDEPRECATED @29 :Float32;
 }
 
@@ -873,6 +872,7 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   dProb @21 :Float32;
 
   mpcSolutionValid @9 :Bool;
+  paramsValid @10 :Bool;
   desire @17 :Desire;
   laneChangeState @18 :LaneChangeState;
   laneChangeDirection @19 :LaneChangeDirection;
@@ -882,9 +882,10 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   psis @26 :List(Float32);
   curvatures @27 :List(Float32);
   curvatureRates @28 :List(Float32);
-  
-  autoLaneChangeEnabled @29 :Bool;
-  autoLaneChangeTimer @30 :Int8;
+  # Lateral Ui display
+  steerRatio @29 :Float32;
+  steerRateCost @30 :Float32;
+  steerActuatorDelay @31 :Float32;
 
   enum Desire {
     none @0;
@@ -923,7 +924,6 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   commIssueDEPRECATED @15 :Bool;
   posenetValidDEPRECATED @16 :Bool;
   sensorValidDEPRECATED @14 :Bool;
-  paramsValidDEPRECATED @10 :Bool;
   steeringAngleDegDEPRECATED @8 :Float32; # deg
   steeringRateDegDEPRECATED @13 :Float32; # deg/s
   angleOffsetDegDEPRECATED @11 :Float32;
@@ -1447,8 +1447,6 @@ struct Event {
     deviceState @6 :DeviceState;
     logMessage @18 :Text;
 
-    # neokii
-    roadLimitSpeed @80 :RoadLimitSpeed;
 
     # *********** debug ***********
     testJoystick @52 :Joystick;
