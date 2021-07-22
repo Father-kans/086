@@ -5,6 +5,7 @@ import signal
 import subprocess
 import sys
 import traceback
+from multiprocessing import Process
 
 import cereal.messaging as messaging
 import selfdrive.crash as crash
@@ -14,13 +15,14 @@ from common.text_window import TextWindow
 from selfdrive.boardd.set_time import set_time
 from selfdrive.hardware import HARDWARE, PC
 from selfdrive.manager.helpers import unblock_stdout
-from selfdrive.manager.process import ensure_running
+from selfdrive.manager.process import ensure_running, launcher
 from selfdrive.manager.process_config import managed_processes
 from selfdrive.athena.registration import register, UNREGISTERED_DONGLE_ID
 from selfdrive.swaglog import cloudlog, add_file_handler
 from selfdrive.version import dirty, get_git_commit, version, origin, branch, commit, \
                               terms_version, training_version, comma_remote, \
                               get_git_branch, get_git_remote
+from selfdrive.hardware.eon.apk import system
 
 sys.path.append(os.path.join(BASEDIR, "pyextra"))
 
@@ -108,6 +110,12 @@ def manager_cleanup():
 
 
 def manager_thread():
+
+  Process(name="shutdownd", target=launcher, args=("selfdrive.shutdownd",)).start()
+  Process(name="road_speed_limiter", target=launcher, args=("selfdrive.road_speed_limiter",)).start()
+  system("am startservice com.neokii.optool/.MainService")
+  system("am startservice com.neokii.openpilot/.MainService")
+
   cloudlog.info("manager start")
   cloudlog.info({"environ": os.environ})
 

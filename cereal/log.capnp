@@ -305,6 +305,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   startedMonoTime @13 :UInt64;
 
   lastAthenaPingTime @32 :UInt64;
+  wifiIpAddress @34 :Text;
 
   # power
   batteryPercent @8 :Int16;
@@ -525,6 +526,12 @@ struct ControlsState @0x97ff69c53601abf1 {
   longitudinalPlanMonoTime @28 :UInt64;
   lateralPlanMonoTime @50 :UInt64;
 
+  # Wheel rotation
+  vEgo @0 :Float32;
+  angleSteers @13 :Float32;
+  vEgoRaw @32 :Float32;
+  steerOverride @20 :Bool;
+
   state @31 :OpenpilotState;
   enabled @19 :Bool;
   active @36 :Bool;
@@ -552,6 +559,16 @@ struct ControlsState @0x97ff69c53601abf1 {
 
   cumLagMs @15 :Float32;
   canErrorCounter @57 :UInt32;
+
+  decelForModel @63 :Bool;
+  # Road Speed Limiter
+  roadLimitSpeed @64 :Int32;
+  roadLimitSpeedLeftDist @65 :Int32;
+  
+  # Ui display
+  steerRatio @60 :Float32;
+  steerRateCost @61 :Float32;
+  steerActuatorDelay @62 :Float32;
 
   lateralControlState :union {
     indiState @52 :LateralINDIState;
@@ -638,8 +655,6 @@ struct ControlsState @0x97ff69c53601abf1 {
   }
 
   # deprecated
-  vEgoDEPRECATED @0 :Float32;
-  vEgoRawDEPRECATED @32 :Float32;
   aEgoDEPRECATED @1 :Float32;
   canMonoTimeDEPRECATED @16 :UInt64;
   radarStateMonoTimeDEPRECATED @17 :UInt64;
@@ -660,11 +675,9 @@ struct ControlsState @0x97ff69c53601abf1 {
   decelForTurnDEPRECATED @47 :Bool;
   decelForModelDEPRECATED @54 :Bool;
   awarenessStatusDEPRECATED @26 :Float32;
-  angleSteersDEPRECATED @13 :Float32;
   vCurvatureDEPRECATED @46 :Float32;
   mapValidDEPRECATED @49 :Bool;
   jerkFactorDEPRECATED @12 :Float32;
-  steerOverrideDEPRECATED @20 :Bool;
   steeringAngleDesiredDegDEPRECATED @29 :Float32;
 }
 
@@ -859,6 +872,7 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   dProb @21 :Float32;
 
   mpcSolutionValid @9 :Bool;
+  paramsValid @10 :Bool;
   desire @17 :Desire;
   laneChangeState @18 :LaneChangeState;
   laneChangeDirection @19 :LaneChangeDirection;
@@ -868,6 +882,10 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   psis @26 :List(Float32);
   curvatures @27 :List(Float32);
   curvatureRates @28 :List(Float32);
+  # Lateral Ui display
+  steerRatio @29 :Float32;
+  steerRateCost @30 :Float32;
+  steerActuatorDelay @31 :Float32;
 
   enum Desire {
     none @0;
@@ -906,7 +924,6 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   commIssueDEPRECATED @15 :Bool;
   posenetValidDEPRECATED @16 :Bool;
   sensorValidDEPRECATED @14 :Bool;
-  paramsValidDEPRECATED @10 :Bool;
   steeringAngleDegDEPRECATED @8 :Float32; # deg
   steeringRateDegDEPRECATED @13 :Float32; # deg/s
   angleOffsetDegDEPRECATED @11 :Float32;
@@ -1361,6 +1378,17 @@ struct UploaderState {
   lastTime @4 :Float32;  # s
   lastSpeed @5 :Float32; # MB/s
   lastFilename @6 :Text;
+}
+
+struct RoadLimitSpeed {
+    active @0 :UInt16;
+    roadLimitSpeed @1 :UInt16;
+    isHighway @2 :Bool;
+    camType @3 :UInt16;
+    camLimitSpeedLeftDist @4 :UInt16;
+    camLimitSpeed @5 :UInt16;
+    sectionLimitSpeed @6 :UInt16;
+    sectionLeftDist @7 :UInt16;
 }
 
 struct Event {

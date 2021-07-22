@@ -7,7 +7,6 @@
 #include <QStackedLayout>
 #include <QString>
 #include <QWidget>
-
 class KeyboardLayout : public QWidget {
   Q_OBJECT
 

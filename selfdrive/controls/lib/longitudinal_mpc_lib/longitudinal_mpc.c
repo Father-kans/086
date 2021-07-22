@@ -47,7 +47,7 @@ void init(double xCost, double vCost, double aCost, double jerkCost, double cons
 
   /* MPC: initialize the current state feedback. */
   for (i = 0; i < NX; ++i) acadoVariables.x0[ i ] = 0.0;
-  
+
   // Set weights
   for (i = 0; i < N; i++) {
     double f = 20 * (T_IDXS[i+1] - T_IDXS[i]);
