@@ -78,8 +78,8 @@ class CarInterface(CarInterfaceBase):
     ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
     ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.192], [0.021]]
     ret.lateralTuning.pid.kf = 0.00007  # full torque for 20 deg at 80mph means 0.00007818594
-    ret.steerRateCost = 0.35
-    ret.steerActuatorDelay = 0.075  # Default delay, not measured yet	  
+    ret.steerRateCost = 0.4
+    ret.steerActuatorDelay = 0.175  # Default delay, not measured yet	  
 
     if candidate == CAR.VOLT:
       # supports stop and go, but initial engage must be above 18mph (which include conservatism)
@@ -173,7 +173,7 @@ class CarInterface(CarInterfaceBase):
 
     cruiseEnabled = self.CS.pcm_acc_status != AccState.OFF
     ret.cruiseState.enabled = cruiseEnabled
-
+    ret.cruiseGap = self.CS.follow_level
 
 
     ret.canValid = self.cp.can_valid
@@ -209,6 +209,11 @@ class CarInterface(CarInterfaceBase):
 
     if cruiseEnabled and self.CS.lka_button and self.CS.lka_button != self.CS.prev_lka_button:
       self.CS.lkMode = not self.CS.lkMode
+
+    if self.CS.distance_button and self.CS.distance_button != self.CS.prev_distance_button:
+       self.CS.follow_level -= 1
+       if self.CS.follow_level < 1:
+         self.CS.follow_level = 3
 
     events = self.create_common_events(ret, pcm_enable=False)
 
