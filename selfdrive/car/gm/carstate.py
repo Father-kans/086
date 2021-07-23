@@ -106,15 +106,17 @@ class CarState(CarStateBase):
 
     self.engineRPM = pt_cp.vl["ECMEngineStatus"]["EngineRPM"]
 
-# bellow line for Brake Light	
+# bellow line for Brake Light
     ret.brakeLights = ch_cp.vl["EBCMFrictionBrakeStatus"]["FrictionBrakePressure"] != 0 or ret.brakePressed
 
-## bellow 5 Lines are for Autohold
+## bellow Lines are for Autohold
     if kegman_kans.conf['AutoHold'] == "1":
       self.autoHold = True
     else:
       self.autoHold = False
-    ret.autoHoldActivated = self.autoHoldActivated
+
+    if self.CP.enableAutoHold:
+      ret.autoHoldActivated = self.autoHoldActivated
 
     return ret
 # 2 lines for 3 Bar distance
@@ -155,6 +157,7 @@ class CarState(CarStateBase):
       ("LKATorqueDelivered", "PSCMStatus", 0),
       ("EngineRPM", "ECMEngineStatus", 0),
       ("VehicleSpeed", "ECMVehicleSpeed", 0),
+      ("BrakePedalPosition", "EBCMBrakePedalPosition", 0),
     ]
 
     checks = []

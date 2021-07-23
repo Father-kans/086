@@ -760,6 +760,25 @@ static void ui_draw_vision_brake(UIState *s) {
   ui_draw_circle_image(s, center_x, center_y, radius, "brake", brake_bg, brake_img_alpha);
 }
 
+static void ui_draw_vision_autohold(UIState *s) {
+  const UIScene *scene = &s->scene;
+
+  const int radius = 96;
+  const int center_x = s->viz_rect.x + radius + (bdr_s * 2) + (radius*2 + 60) * 2;
+  const int center_y = s->viz_rect.bottom() - footer_h / 2;
+
+  auto car_state = (*s->sm)["carState"].getCarState();
+  bool autohold_valid = car_state.getAutoHoldActivated();
+
+  float brake_img_alpha = autohold_valid ? 1.0f : 0.15f;
+  float brake_bg_alpha = autohold_valid ? 0.3f : 0.1f;
+  NVGcolor brake_bg = nvgRGBA(0, 0, 0, (255 * brake_bg_alpha));
+
+  ui_draw_circle_image(s, center_x, center_y, radius,
+        "autohold_active",
+        brake_bg, brake_img_alpha);
+}
+
 static void ui_draw_vision_maxspeed(UIState *s) {
   const int SET_SPEED_NA = 255;
   float maxspeed = (*s->sm)["controlsState"].getControlsState().getVCruise();
@@ -888,8 +907,9 @@ static void ui_draw_vision(UIState *s) {
   ui_draw_vision_header(s);
   if ((*s->sm)["controlsState"].getControlsState().getAlertSize() == cereal::ControlsState::AlertSize::NONE) {
     ui_draw_vision_face(s);
-  }  
+  }
   ui_draw_vision_brake(s);
+  ui_draw_vision_autohold(s);
 }
 
 static void ui_draw_background(UIState *s) {
@@ -1018,6 +1038,7 @@ void ui_nvg_init(UIState *s) {
     {"brake", "../assets/img_brake_disc.png"},
 	{"custom_lead_vision", "../assets/images/custom_lead_vision.png"},
 	{"custom_lead_radar", "../assets/images/custom_lead_radar.png"},
+    {"autohold_active", "../assets/img_autohold_active.png"},	
   };
   for (auto [name, file] : images) {
     s->images[name] = nvgCreateImage(s->vg, file, 1);
