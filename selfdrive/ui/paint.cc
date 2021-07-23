@@ -440,6 +440,27 @@ static void ui_draw_vision_brake(UIState *s) {
   ui_draw_circle_image(s, center_x, center_y, radius, "brake", brake_bg, brake_img_alpha);
 }
 
+static void ui_draw_vision_autohold(UIState *s) {
+  const UIScene *scene = &s->scene;
+
+  const int radius = 96;
+  const int center_x = s->viz_rect.x + radius + (bdr_s * 2) + (radius*2 + 60) * 2;
+  const int center_y = s->viz_rect.bottom() - footer_h / 2;
+
+  auto car_state = (*s->sm)["carState"].getCarState();
+  int autohold = car_state.getAutoHoldActivated();
+  if(autohold < 0)
+    return;
+
+  float brake_img_alpha = autohold > 0 ? 1.0f : 0.15f;
+  float brake_bg_alpha = autohold > 0 ? 0.3f : 0.1f;
+  NVGcolor brake_bg = nvgRGBA(0, 0, 0, (255 * brake_bg_alpha));
+
+  ui_draw_circle_image(s, center_x, center_y, radius,
+        autohold > 1 ? "autohold_warning" : "autohold_active",
+        brake_bg, brake_img_alpha);
+}
+
 static void ui_draw_vision_maxspeed(UIState *s) {
   const int SET_SPEED_NA = 255;
   float maxspeed = (*s->sm)["controlsState"].getControlsState().getVCruise();
@@ -527,6 +548,7 @@ static void ui_draw_vision(UIState *s) {
     ui_draw_vision_face(s);
   }
   ui_draw_vision_brake(s);
+  ui_draw_vision_autohold(s);
 }
 
 static void ui_draw_background(UIState *s) {
@@ -653,6 +675,8 @@ void ui_nvg_init(UIState *s) {
     {"wheel", "../assets/img_chffr_wheel.png"},
     {"driver_face", "../assets/img_driver_face.png"},
     {"brake", "../assets/img_brake_disc.png"},
+    {"autohold_warning", "../assets/img_autohold_warning.png"},
+    {"autohold_active", "../assets/img_autohold_active.png"},
   };
   for (auto [name, file] : images) {
     s->images[name] = nvgCreateImage(s->vg, file, 1);

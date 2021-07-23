@@ -72,6 +72,7 @@ class CarInterface(CarInterfaceBase):
     ret.enableCamera = is_ecu_disconnected(fingerprint[0], FINGERPRINTS, ECU_FINGERPRINT, candidate, Ecu.fwdCamera) or has_relay
     ret.openpilotLongitudinalControl = ret.enableCamera
     tire_stiffness_factor = 0.9  # not optimized yet
+    ret.enableAutoHold = 241 in fingerprint[0]
 
     # Start with a baseline lateral tuning for all GM vehicles. Override tuning as needed in each model section below.
     ret.minSteerSpeed = 7 * CV.MPH_TO_MS
@@ -138,10 +139,10 @@ class CarInterface(CarInterfaceBase):
 
     # TODO: start from empirically derived lateral slip stiffness for the civic and scale by
     # mass and CG position, so all cars will have approximately similar dyn behaviors
-    ret.tireStiffnessFront, ret.tireStiffnessRear = scale_tire_stiffness(ret.mass, ret.wheelbase, ret.centerToFront,
-                                                                         tire_stiffness_factor=tire_stiffness_factor)
+    ret.tireStiffnessFront, ret.tireStiffnessRear = scale_tire_stiffness(ret.mass, ret.wheelbase, ret.centerToFront, \
+        tire_stiffness_factor=tire_stiffness_factor)
 
-#    ret.stoppingControl = True
+    ret.stoppingControl = True
 
     ret.steerMaxBP = [10., 25.]
     ret.steerMaxV = [1., 1.2]
@@ -150,13 +151,13 @@ class CarInterface(CarInterfaceBase):
     ret.longitudinalTuning.deadzoneV = [.0, .14]
 
     ret.longitudinalTuning.kpBP = [0., 15., 22., 33.]
-    ret.longitudinalTuning.kpV = [1.9, 2.5, 2.1, 1.8]
-    ret.longitudinalTuning.kiBP = [0., 13.8, 33.]
-    ret.longitudinalTuning.kiV = [.39, .36, .3]
-    ret.longitudinalTuning.kfBP = [0., 13.8, 33.]
-    ret.longitudinalTuning.kfV = [1.2, 1.6, 1.0]
-    ret.brakeMaxBP = [0, 13.8, 33.]
-    ret.brakeMaxV = [1.8, 1.5, 0.7]
+    ret.longitudinalTuning.kpV = [1.2, 2.0, 2.2, 1.8]
+    ret.longitudinalTuning.kiBP = [0., 5., 12., 20., 27.]
+    ret.longitudinalTuning.kiV = [.37, .36, .38, .33, .3]
+    ret.longitudinalTuning.kfBP = [13.8, 33.]
+    ret.longitudinalTuning.kfV = [1.3, 0.9]
+    ret.brakeMaxBP = [0, 19.7, 33.]
+    ret.brakeMaxV = [1.8, 1.5, 0.6]
 
     ret.startAccel = 1.2 # Accelerate from 0 faster
     ret.steerLimitTimer = 1.7
@@ -173,7 +174,8 @@ class CarInterface(CarInterfaceBase):
 
     cruiseEnabled = self.CS.pcm_acc_status != AccState.OFF
     ret.cruiseState.enabled = cruiseEnabled
-    ret.cruiseGap = self.CS.follow_level
+#    ret.cruiseGap = self.CS.follow_level
+    ret.readdistancelines = self.CS.follow_level
 
 
     ret.canValid = self.cp.can_valid
