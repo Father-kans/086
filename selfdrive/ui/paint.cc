@@ -448,16 +448,14 @@ static void ui_draw_vision_autohold(UIState *s) {
   const int center_y = s->viz_rect.bottom() - footer_h / 2;
 
   auto car_state = (*s->sm)["carState"].getCarState();
-  int autohold = car_state.getAutoHoldActivated();
-  if(autohold < 0)
-    return;
+  bool autohold_valid = car_state.getAutoHoldActivated();
 
-  float brake_img_alpha = autohold > 0 ? 1.0f : 0.15f;
-  float brake_bg_alpha = autohold > 0 ? 0.3f : 0.1f;
+  float brake_img_alpha = autohold_valid ? 1.0f : 0.15f;
+  float brake_bg_alpha = autohold_valid ? 0.3f : 0.1f;
   NVGcolor brake_bg = nvgRGBA(0, 0, 0, (255 * brake_bg_alpha));
 
   ui_draw_circle_image(s, center_x, center_y, radius,
-        autohold > 1 ? "autohold_warning" : "autohold_active",
+        "autohold_active",
         brake_bg, brake_img_alpha);
 }
 

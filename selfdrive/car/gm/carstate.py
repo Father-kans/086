@@ -116,10 +116,7 @@ class CarState(CarStateBase):
       self.autoHold = False
 
     if self.CP.enableAutoHold:
-      ret.autoHoldActivated = pt_cp.vl["EBCMBrakePedalPosition"]["BrakePedalPosition"] != 0 or self.autoHoldActivated
-
-
-#     ret.autoHoldActivated = self.autoHoldActivated
+      ret.autoHoldActivated = self.autoHoldActivated
 
     return ret
 # 2 lines for 3 Bar distance
@@ -160,15 +157,10 @@ class CarState(CarStateBase):
       ("LKATorqueDelivered", "PSCMStatus", 0),
       ("EngineRPM", "ECMEngineStatus", 0),
       ("VehicleSpeed", "ECMVehicleSpeed", 0),
+      ("BrakePedalPosition", "EBCMBrakePedalPosition", 0),
     ]
 
     checks = []
-
-    if CP.enableAutoHold:
-      signals += [
-        ("BrakePedalPosition", "EBCMBrakePedalPosition", 0),
-      ]
-      checks += []
 
     if CP.carFingerprint == CAR.VOLT:
       signals += [

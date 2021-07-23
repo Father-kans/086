@@ -255,6 +255,12 @@ class CarInterface(CarInterfaceBase):
 #    if ret.vEgo < self.CP.minSteerSpeed:
 #      events.add(car.CarEvent.EventName.belowSteerSpeed)
 
+    if self.CS.autoHoldActivated == True:
+      ret.autoHoldActivated = 1
+
+    if self.CS.autoHoldActivated == False:
+      ret.autoHoldActivated = 0
+
     # handle button presses
     for b in ret.buttonEvents:
       # do enable on both accel and decel buttons
