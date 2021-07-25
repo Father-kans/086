@@ -64,7 +64,10 @@ class CarController():
       idx = (frame // 4) % 4
 
       # Auto Hold State
-      if CS.cruiseMain and not enabled and CS.autoHold and CS.autoHoldActive and not CS.out.gasPressed and CS.out.gearShifter == 'drive' and CS.out.vEgo < 0.01 and not CS.regenPaddlePressed:
+      if CS.cruiseMain and not enabled and CS.autoHold and CS.autoHoldActive and \
+             not CS.out.gasPressed and CS.out.gearShifter == 'drive' and \
+             CS.out.vEgo < 0.01 and not CS.regenPaddlePressed and CS.autoholdBrakeStart:
+
         car_stopping = apply_gas < P.ZERO_GAS
         standstill = CS.pcm_acc_status == AccState.STANDSTILL
 
