@@ -144,23 +144,24 @@ class CarInterface(CarInterfaceBase):
 
     ret.stoppingControl = True
 
-    ret.steerMaxBP = [10., 25.]
-    ret.steerMaxV = [1., 1.2]
+    ret.steerMaxBP = [8.3, 33.]
+    ret.steerMaxV = [1.4, 1.2]
 
     ret.longitudinalTuning.deadzoneBP = [0., 8.05]
     ret.longitudinalTuning.deadzoneV = [.0, .14]
 
-    ret.longitudinalTuning.kpBP = [0., 15., 22., 33.]
-    ret.longitudinalTuning.kpV = [1.2, 2.0, 2.2, 1.8]
-    ret.longitudinalTuning.kiBP = [5., 12., 20., 27.]
-    ret.longitudinalTuning.kiV = [.37, .38, .33, .3]
+    ret.longitudinalTuning.kpBP = [0., 15., 33.]
+    ret.longitudinalTuning.kpV = [1.9, 2.2, 1.5]
+    ret.longitudinalTuning.kiBP = [0., 5., 12., 23., 33.]
+    ret.longitudinalTuning.kiV = [.35, .31, .20, .17, .13]
     ret.longitudinalTuning.kfBP = [13.8, 33.]
-    ret.longitudinalTuning.kfV = [1.3, 0.9]
+    ret.longitudinalTuning.kfV = [1.6, 0.9]
     ret.brakeMaxBP = [0, 19.7, 33.]
-    ret.brakeMaxV = [1.8, 1.5, 0.6]
-
+    ret.brakeMaxV = [1.6, 1.3, 0.8]
+    ret.stoppingBrakeRate = 0.1 # reach stopping target smoothly
+    ret.startingBrakeRate = 2.0 # release brakes fast
     ret.startAccel = 1.2 # Accelerate from 0 faster
-    ret.steerLimitTimer = 1.7
+    ret.steerLimitTimer = 4.5
     ret.radarTimeStep = 0.0667  # GM radar runs at 15Hz instead of standard 20Hz
 
     return ret
@@ -171,6 +172,9 @@ class CarInterface(CarInterfaceBase):
     # bellow two lines for Brake Light
     self.cp_chassis.update_strings(can_strings)
     ret = self.CS.update(self.cp, self.cp_chassis)
+
+    if not self.CS.autoholdBrakeStart and self.CS.brakePressVal > 40.0:
+      self.CS.autoholdBrakeStart = True 
 
     cruiseEnabled = self.CS.pcm_acc_status != AccState.OFF
     ret.cruiseState.enabled = cruiseEnabled
@@ -294,8 +298,9 @@ class CarInterface(CarInterfaceBase):
     self.frame += 1
 
     # Release Auto Hold and creep smoothly when regenpaddle pressed
-    if self.CS.regenPaddlePressed and self.CS.autoHold:
+    if (self.CS.regenPaddlePressed or (self.CS.brakePressVal > 9.0 and self.CS.prev_brakePressVal < self.CS.brakePressVal)) and self.CS.autoHold:
       self.CS.autoHoldActive = False
+      self.CS.autoholdBrakeStart = False
 
     if self.CS.autoHold and not self.CS.autoHoldActive and not self.CS.regenPaddlePressed:
       if self.CS.out.vEgo > 0.02:
