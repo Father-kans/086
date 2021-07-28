@@ -227,9 +227,7 @@ static void update_params(UIState *s) {
   const uint64_t frame = s->sm->frame;
   UIScene &scene = s->scene;
   if (frame % (5*UI_FREQ) == 0) {
-    Params params;
-    scene.is_metric = params.getBool("IsMetric");
-	s->custom_lead_mark = params.getBool("CustomLeadMark");
+    scene.is_metric = Params().getBool("IsMetric");
   }
 }
 
@@ -303,14 +301,12 @@ static void update_extras(UIState *s)
     scene.live_params = sm["liveParameters"].getLiveParameters();
 
 
-#if UI_FEATURE_DASHCAM
    if(s->awake)
    {
         int touch_x = -1, touch_y = -1;
         int touched = touch_poll(&(s->touch), &touch_x, &touch_y, 0);
         dashcam(s, touch_x, touch_y);
    }
-#endif
 }
 
 
