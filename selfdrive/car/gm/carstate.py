@@ -164,7 +164,6 @@ class CarState(CarStateBase):
       ("LKATorqueDelivered", "PSCMStatus", 0),
       ("EngineRPM", "ECMEngineStatus", 0),
       ("VehicleSpeed", "ECMVehicleSpeed", 0),
-      ("BrakePedalPosition", "EBCMBrakePedalPosition", 0),
       ("BrakePedalPos", "ECMAcceleratorPos", 0),
     ]
 
