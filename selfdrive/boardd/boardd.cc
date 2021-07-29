@@ -90,7 +90,7 @@ void safety_setter_thread() {
   cereal::CarParams::Reader car_params = cmsg.getRoot<cereal::CarParams>();
   cereal::CarParams::SafetyModel safety_model = car_params.getSafetyModel();
 
-  panda->set_unsafe_mode(0);  // see safety_declarations.h for allowed values
+  panda->set_unsafe_mode(1);  // see safety_declarations.h for allowed values
 
   auto safety_param = car_params.getSafetyParam();
   LOGW("setting safety model: %d with param %d", (int)safety_model, safety_param);
@@ -447,7 +447,7 @@ void hardware_control_thread() {
       int cur_integ_lines = event.getDriverCameraState().getIntegLines();
 
       if (Hardware::TICI()) {
-        cur_integ_lines = integ_lines_filter.update(cur_integ_lines * 2.5);
+        cur_integ_lines = integ_lines_filter.update(cur_integ_lines);
       }
       last_front_frame_t = event.getLogMonoTime();
 
