@@ -3,10 +3,11 @@ from cereal import car
 from cereal import log
 from common.numpy_fast import interp
 from selfdrive.config import Conversions as CV
+# bellow for white panda
 from selfdrive.car.gm.values import CAR, Ecu, ECU_FINGERPRINT, CruiseButtons, \
                                     AccState, FINGERPRINTS
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, is_ecu_disconnected, gen_empty_fingerprint
-from selfdrive.car.interfaces import CarInterfaceBase, DISENGAGE_ON_GAS
+from selfdrive.car.interfaces import CarInterfaceBase
 
 FOLLOW_AGGRESSION = 0.15 # (Acceleration/Decel aggression) Lower is more aggressive
 
@@ -69,20 +70,27 @@ class CarInterface(CarInterfaceBase):
     # Presence of a camera on the object bus is ok.
     # Have to go to read_only if ASCM is online (ACC-enabled cars),
     # or camera is on powertrain bus (LKA cars without ACC).
+	# for white panda
     ret.enableCamera = is_ecu_disconnected(fingerprint[0], FINGERPRINTS, ECU_FINGERPRINT, candidate, Ecu.fwdCamera) or has_relay
     ret.openpilotLongitudinalControl = ret.enableCamera
+
     tire_stiffness_factor = 0.9  # not optimized yet
+
+	# for autohold on ui icon
     ret.enableAutoHold = 241 in fingerprint[0]
 
     # Start with a baseline lateral tuning for all GM vehicles. Override tuning as needed in each model section below.
     ret.minSteerSpeed = 7 * CV.MPH_TO_MS
     ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
     ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.192], [0.021]]
+
+	# D gain
     ret.lateralTuning.pid.kdBP = [0.]
     ret.lateralTuning.pid.kdV = [0.00022]  #corolla from shane fork : 0.725
-    ret.lateralTuning.pid.kf = 0.00007  # full torque for 20 deg at 80mph means 0.00007818594
+	
+    ret.lateralTuning.pid.kf = 0.00006  # full torque for 20 deg at 80mph means 0.00007818594
     ret.steerRateCost = 0.4
-    ret.steerActuatorDelay = 0.175  # Default delay, not measured yet	  
+    ret.steerActuatorDelay = 0.115  # Default delay, not measured yet	  
 
     if candidate == CAR.VOLT:
       # supports stop and go, but initial engage must be above 18mph (which include conservatism)
@@ -175,6 +183,7 @@ class CarInterface(CarInterfaceBase):
     self.cp_chassis.update_strings(can_strings)
     ret = self.CS.update(self.cp, self.cp_chassis)
 
+    #brake autohold
     if not self.CS.autoholdBrakeStart and self.CS.brakePressVal > 40.0:
       self.CS.autoholdBrakeStart = True 
 
@@ -183,25 +192,24 @@ class CarInterface(CarInterfaceBase):
 #    ret.cruiseGap = self.CS.follow_level
     ret.readdistancelines = self.CS.follow_level
 
-
     ret.canValid = self.cp.can_valid
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
-
-    ret.engineRPM = self.CS.engineRPM #for RPM
+    #for RPM
+    ret.engineRPM = self.CS.engineRPM
 
     buttonEvents = []
 
     if self.CS.cruise_buttons != self.CS.prev_cruise_buttons and self.CS.prev_cruise_buttons != CruiseButtons.INIT:
       be = car.CarState.ButtonEvent.new_message()
       be.type = ButtonType.unknown
-      if (self.CS.cruise_buttons != CruiseButtons.UNPRESS) or DISENGAGE_ON_GAS:
+      if self.CS.cruise_buttons != CruiseButtons.UNPRESS:
         be.pressed = True
         but = self.CS.cruise_buttons
       else:
         be.pressed = False
         but = self.CS.prev_cruise_buttons
       if but == CruiseButtons.RES_ACCEL:
-        if not (ret.cruiseState.enabled and ret.standstill) or DISENGAGE_ON_GAS:
+        if not (ret.cruiseState.enabled and ret.standstill):
           be.type = ButtonType.accelCruise  # Suppress resume button if we're resuming from stop so we don't adjust speed.
       elif but == CruiseButtons.DECEL_SET:
         if not cruiseEnabled and not self.CS.lkMode:
@@ -215,6 +223,7 @@ class CarInterface(CarInterfaceBase):
 
     ret.buttonEvents = buttonEvents
 
+    # 3bar
     if cruiseEnabled and self.CS.lka_button and self.CS.lka_button != self.CS.prev_lka_button:
       self.CS.lkMode = not self.CS.lkMode
 
@@ -229,6 +238,7 @@ class CarInterface(CarInterfaceBase):
       events.add(EventName.belowEngageSpeed)
     if self.CS.park_brake:
       events.add(EventName.parkBrake)
+	#autohold event
     if self.CS.autoHoldActivated:
       events.add(car.CarEvent.EventName.autoHoldActivated)
 
@@ -261,6 +271,7 @@ class CarInterface(CarInterfaceBase):
 #    if ret.vEgo < self.CP.minSteerSpeed:
 #      events.add(car.CarEvent.EventName.belowSteerSpeed)
 
+    # autohold on ui icon
     if self.CS.autoHoldActivated == True:
       ret.autoHoldActivated = 1
 

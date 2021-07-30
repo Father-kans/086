@@ -227,7 +227,9 @@ static void update_params(UIState *s) {
   const uint64_t frame = s->sm->frame;
   UIScene &scene = s->scene;
   if (frame % (5*UI_FREQ) == 0) {
-    scene.is_metric = Params().getBool("IsMetric");
+    Params params;
+    scene.is_metric = params.getBool("IsMetric");
+    s->custom_lead_mark = params.getBool("CustomLeadMark");
   }
 }
 
@@ -245,6 +247,8 @@ static void update_vision(UIState *s) {
     } else if (!Hardware::PC()) {
       LOGE("visionIPC receive timeout");
     }
+  } else if (s->scene.started) {
+    util::sleep_for(1000. / UI_FREQ);
   }
 }
 
